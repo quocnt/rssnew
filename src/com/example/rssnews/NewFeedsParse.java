@@ -39,7 +39,7 @@ public class NewFeedsParse {
 	public static final String LINK = "link";
 	public static final String DESCRIPTION = "description";
 	public static final String CATEGORY = "category";
-	public static final String PUBLISHEDDATE = "pubDate";
+	public static final String PUBLISHEDDATE = "pubdate";
 	public static final String GUID = "guid";
 
 	public NewFeedsParse(String urlString) {
@@ -48,11 +48,16 @@ public class NewFeedsParse {
 
 	public static InputStream downloadUrl(String urlString) throws IOException {
 		URL url = new URL(urlString);
+		InputStream stream = null;
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.setRequestMethod("GET");
 		conn.setDoInput(true);
 		conn.connect();
-		InputStream stream = conn.getInputStream();
+		int responseCode = conn.getResponseCode();
+		Log.d("RESPONCODE", "" + responseCode);
+		if (responseCode == HttpURLConnection.HTTP_OK) {
+			stream = conn.getInputStream();
+		}
 		return stream;
 	}
 
@@ -61,17 +66,21 @@ public class NewFeedsParse {
 			int count = 0;
 			factory = XmlPullParserFactory.newInstance();
 			parser = factory.newPullParser();
+			factory.setNamespaceAware(true);
 			urlStream = downloadUrl(urlString);
-			parser.setInput(urlStream, null);
-			Log.e("XML FILE", parser.toString());
+			parser.setInput(urlStream, "UTF-8");
+			
 			int eventType = parser.getEventType();
+
 			boolean done = false;
 			rssFeed = new Rss();
 			rssFeedList = new ArrayList<Rss>();
 			while (eventType != XmlPullParser.END_DOCUMENT && !done) {
 				tagName = parser.getName();
+
 				switch (eventType) {
 				case XmlPullParser.START_DOCUMENT:
+					Log.e("OK", "Start document");
 					break;
 				case XmlPullParser.START_TAG:
 					if (tagName.equals(ITEM)) {
@@ -79,18 +88,22 @@ public class NewFeedsParse {
 					}
 					if (tagName.equals(TITLE)) {
 						title = parser.nextText().toString();
+						Log.e("title", title);
 					}
 					if (tagName.equals(LINK)) {
 						link = parser.nextText().toString();
-					}
+						Log.e("link", link);
+					}	
 					if (tagName.equals(DESCRIPTION)) {
 						description = parser.nextText().toString();
-						image = description.substring(
-								description.indexOf("src='") + 5,
-								description.indexOf("'/>"));
+						// image = description.substring(
+						// description.indexOf("src='") + 5,
+						// description.indexOf("'/>"));
+						image = "";
 					}
 					if (tagName.equals(PUBLISHEDDATE)) {
 						pubDate = parser.nextText().toString();
+						Log.e("pubDate", pubDate);
 					}
 					break;
 				case XmlPullParser.END_TAG:
@@ -105,6 +118,7 @@ public class NewFeedsParse {
 				eventType = parser.next();
 			}
 		} catch (Exception e) {
+			Log.e("LOI", "LOI CHO NAY");
 			e.printStackTrace();
 		}
 		return rssFeedList;

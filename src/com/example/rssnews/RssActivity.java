@@ -20,7 +20,7 @@ public class RssActivity extends Activity implements AnimationLayout.Listener {
 	public List<Rss> list = new ArrayList<Rss>();
 	public RssAdapter adapter;
 	public NewFeedsParse newFeed;
-	public String link = "http://dantri.com.vn/trangchu.rss";
+	public String link = "http://tuoitre.vn/Pages/RssFeeds.aspx?ChannelID=6";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +37,7 @@ public class RssActivity extends Activity implements AnimationLayout.Listener {
 		 * rss.setTitle("title " + i); list.add(rss); }
 		 */
 		adapter = new RssAdapter(this, list);
-		//mList.setAdapter(adapter);
+		mList.setAdapter(adapter);
 	}
 
 	public void onClickContentButton(View v) {
